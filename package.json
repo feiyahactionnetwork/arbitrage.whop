@@ -1,0 +1,1 @@
+{\n  "name": "arbitrage.whop",\n  "version": "1.0.0",\n  "private": true,\n  "dependencies": {\n    "next": "latest",\n    "react": "latest",\n    "typescript": "latest",\n    "tailwindcss": "latest",\n    "supabase-js": "latest",\n    "cloudinary-react": "latest",\n    "axios": "latest",\n    "crypto-js": "latest"\n  }\n}
