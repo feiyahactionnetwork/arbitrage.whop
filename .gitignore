@@ -1,0 +1,13 @@
+# Node.js
+node_modules/
+
+# Next.js
+.next/
+/.next/
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
