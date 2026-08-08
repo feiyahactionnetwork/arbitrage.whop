@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Landed — know if a product makes money before you buy it</title>
+<meta name="description" content="Dropshipping viability calculator. Landed cost, break-even ROAS, refund-adjusted profit, and a pass/fail verdict on every product.">
+<style>
+  :root {
+    --ground:#FAFAF8; --surface:#FFFFFF; --surface-2:#F1F1EC; --surface-3:#E7E7E0;
+    --line:#DCDCD3; --line-strong:#BFBFB2;
+    --ink:#1A1A17; --ink-2:#44443C; --muted:#6E6E62;
+    --accent:#0B6E4F; --accent-soft:#DCEFE6;
+    --pass:#0B6E4F; --pass-bg:#DCEFE6;
+    --tight:#96620A; --tight-bg:#F7E9CC;
+    --fail:#A32020; --fail-bg:#F7DCDC;
+    --shadow:0 1px 2px rgba(26,26,23,.05), 0 4px 14px rgba(26,26,23,.05);
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --ground:#131311; --surface:#1C1C19; --surface-2:#242420; --surface-3:#2E2E28;
+      --line:#33332C; --line-strong:#4A4A41;
+      --ink:#EFEFE9; --ink-2:#C3C3B8; --muted:#8E8E80;
+      --accent:#4ECFA3; --accent-soft:#12332740;
+      --pass:#4ECFA3; --pass-bg:#12332740;
+      --tight:#E0AC4E; --tight-bg:#3A2C0E60;
+      --fail:#F08585; --fail-bg:#3B1B1B60;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.3);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#131311; --surface:#1C1C19; --surface-2:#242420; --surface-3:#2E2E28;
+    --line:#33332C; --line-strong:#4A4A41;
+    --ink:#EFEFE9; --ink-2:#C3C3B8; --muted:#8E8E80;
+    --accent:#4ECFA3; --accent-soft:#12332740;
+    --pass:#4ECFA3; --pass-bg:#12332740;
+    --tight:#E0AC4E; --tight-bg:#3A2C0E60;
+    --fail:#F08585; --fail-bg:#3B1B1B60;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.3);
+  }
+  :root[data-theme="light"]{
+    --ground:#FAFAF8; --surface:#FFFFFF; --surface-2:#F1F1EC; --surface-3:#E7E7E0;
+    --line:#DCDCD3; --line-strong:#BFBFB2;
+    --ink:#1A1A17; --ink-2:#44443C; --muted:#6E6E62;
+    --accent:#0B6E4F; --accent-soft:#DCEFE6;
+    --pass:#0B6E4F; --pass-bg:#DCEFE6;
+    --tight:#96620A; --tight-bg:#F7E9CC;
+    --fail:#A32020; --fail-bg:#F7DCDC;
+    --shadow:0 1px 2px rgba(26,26,23,.05), 0 4px 14px rgba(26,26,23,.05);
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--ground); color:var(--ink); font-family:var(--sans);
+    font-size:16px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1120px;margin:0 auto;padding:28px 20px 80px;display:flex;flex-direction:column;gap:26px}
+
+  /* ---- topbar ---- */
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .brand{display:flex;align-items:baseline;gap:11px}
+  .brand .logo{font-size:23px;font-weight:700;letter-spacing:-.03em}
+  .brand .logo em{font-style:normal;color:var(--accent)}
+  .brand .tag{font-family:var(--mono);font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+  .themebtn{
+    font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+    background:var(--surface);color:var(--ink-2);border:1px solid var(--line-strong);
+    border-radius:3px;padding:7px 12px;cursor:pointer
+  }
+  .themebtn:hover{background:var(--surface-2)}
+  .themebtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ---- layout ---- */
+  .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:20px;align-items:start}
+  @media (max-width:900px){.grid{grid-template-columns:1fr}}
+
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:var(--shadow);overflow:hidden}
+  .panel-head{
+    padding:13px 17px;border-bottom:1px solid var(--line);background:var(--surface-2);
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap
+  }
+  .panel-head h2{margin:0;font-size:13px;font-family:var(--mono);letter-spacing:.11em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .panel-body{padding:17px}
+
+  /* ---- form ---- */
+  .fieldset{display:flex;flex-direction:column;gap:13px}
+  .fs-title{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+    color:var(--accent);font-weight:700;padding-bottom:8px;border-bottom:1px solid var(--line)
+  }
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .row.one{grid-template-columns:1fr}
+  .f{display:flex;flex-direction:column;gap:5px;min-width:0}
+  .f label{font-size:12px;color:var(--ink-2);font-weight:560;letter-spacing:-.005em}
+  .f .hint{font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+  .inputwrap{position:relative;display:flex;align-items:center}
+  .inputwrap .pre,.inputwrap .post{
+    position:absolute;font-family:var(--mono);font-size:12px;color:var(--muted);pointer-events:none
+  }
+  .inputwrap .pre{left:9px}
+  .inputwrap .post{right:9px}
+  .inputwrap.haspre input{padding-left:24px}
+  .inputwrap.haspost input{padding-right:28px}
+  input[type="text"],input[type="number"],select{
+    width:100%;font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:14px;
+    color:var(--ink);background:var(--surface);border:1px solid var(--line-strong);
+    border-radius:4px;padding:8px 10px;
+  }
+  input[type="text"]{font-family:var(--sans);font-size:14px}
+  select{cursor:pointer}
+  input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+  input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  input[type=number]{-moz-appearance:textfield}
+
+  .toggle{display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none}
+  .toggle input{width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex:none}
+  .toggle span{font-size:12.5px;color:var(--ink-2)}
+
+  .btnrow{display:flex;gap:9px;flex-wrap:wrap;padding-top:4px}
+  .btn{
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;font-weight:600;
+    border-radius:4px;padding:9px 14px;cursor:pointer;border:1px solid transparent
+  }
+  .btn.primary{background:var(--accent);color:var(--ground);border-color:var(--accent)}
+  .btn.primary:hover{filter:brightness(1.08)}
+  .btn.ghost{background:transparent;color:var(--ink-2);border-color:var(--line-strong)}
+  .btn.ghost:hover{background:var(--surface-2)}
+  .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ---- verdict ---- */
+  .verdict{padding:17px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:11px}
+  .verdict.pass{background:var(--pass-bg)}
+  .verdict.tight{background:var(--tight-bg)}
+  .verdict.fail{background:var(--fail-bg)}
+  .vtop{display:flex;align-items:center;gap:11px;flex-wrap:wrap}
+  .vlabel{font-family:var(--mono);font-size:19px;letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+  .verdict.pass .vlabel{color:var(--pass)}
+  .verdict.tight .vlabel{color:var(--tight)}
+  .verdict.fail .vlabel{color:var(--fail)}
+  .vwhy{font-size:14px;line-height:1.5;color:var(--ink-2);margin:0;max-width:56ch}
+  .vwhy b{color:var(--ink)}
+
+  /* ---- stat grid ---- */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;background:var(--line)}
+  .stat{background:var(--surface);padding:14px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
+  .stat .k{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .stat .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:19px;font-weight:650;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .stat .s{font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+  .stat .v.pos{color:var(--pass)} .stat .v.neg{color:var(--fail)}
+  .stat.wide{grid-column:1/-1}
+
+  /* ---- bar ---- */
+  .waterfall{padding:16px 17px;display:flex;flex-direction:column;gap:9px;border-top:1px solid var(--line)}
+  .wf-title{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .bar{display:flex;height:26px;border-radius:3px;overflow:hidden;background:var(--surface-3)}
+  .seg{height:100%;min-width:0}
+  .seg.cost{background:var(--line-strong)}
+  .seg.fee{background:var(--tight)}
+  .seg.ad{background:var(--muted)}
+  .seg.profit{background:var(--accent)}
+  .seg.loss{background:var(--fail)}
+  .legend{display:flex;flex-wrap:wrap;gap:13px;font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+  .legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:baseline}
+
+  /* ---- portfolio ---- */
+  .scroller{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;min-width:640px}
+  thead th{
+    text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);font-weight:500;padding:10px 13px;background:var(--surface-2);
+    border-bottom:1px solid var(--line);white-space:nowrap
+  }
+  tbody td{padding:11px 13px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:middle}
+  tbody tr:last-child td{border-bottom:0}
+  tbody tr:hover{background:var(--surface-2)}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .pill{
+    display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;
+    letter-spacing:.07em;text-transform:uppercase;padding:3px 8px;border-radius:2px;font-weight:700
+  }
+  .pill::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;flex:none}
+  .pill.pass{color:var(--pass);background:var(--pass-bg)}
+  .pill.tight{color:var(--tight);background:var(--tight-bg)}
+  .pill.fail{color:var(--fail);background:var(--fail-bg)}
+  .linkbtn{background:none;border:0;color:var(--muted);cursor:pointer;font-family:var(--mono);font-size:11px;padding:2px 5px;border-radius:3px}
+  .linkbtn:hover{color:var(--fail);background:var(--fail-bg)}
+  .linkbtn.load:hover{color:var(--accent);background:var(--accent-soft)}
+  .linkbtn:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  .empty{padding:30px 17px;text-align:center;color:var(--muted);font-size:14px;line-height:1.6}
+  .empty code{font-family:var(--mono);font-size:12.5px;background:var(--surface-2);padding:2px 6px;border-radius:3px}
+
+  footer{border-top:1px solid var(--line);padding-top:18px;font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.7}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">
+      <span class="logo">Land<em>ed</em></span>
+      <span class="tag">Product viability calculator</span>
+    </div>
+    <button class="themebtn" id="themebtn" type="button">Theme</button>
+  </div>
+
+  <div class="grid">
+
+    <!-- ============ INPUTS ============ -->
+    <div class="panel">
+      <div class="panel-head"><h2>Inputs</h2>
+        <label class="toggle"><input type="checkbox" id="cmpOn"><span>Compare a 2nd supplier</span></label>
+      </div>
+      <div class="panel-body">
+        <div class="fieldset">
+
+          <div class="fs-title">Product</div>
+          <div class="row one">
+            <div class="f">
+              <label for="pname">Name</label>
+              <input type="text" id="pname" placeholder="e.g. Undercoat deshedding rake" value="Undercoat deshedding rake">
+            </div>
+          </div>
+
+          <div class="fs-title">Cost per unit</div>
+          <div class="row">
+            <div class="f">
+              <label for="unit">Supplier unit cost</label>
+              <div class="inputwrap haspre"><span class="pre" id="curA">$</span><input type="number" id="unit" step="0.01" min="0" value="2.80"></div>
+            </div>
+            <div class="f">
+              <label for="freight">Freight per unit</label>
+              <div class="inputwrap haspre"><span class="pre" id="curB">$</span><input type="number" id="freight" step="0.01" min="0" value="2.20"></div>
+            </div>
+          </div>
+          <div class="row" id="cmpRow" hidden>
+            <div class="f">
+              <label for="unit2">Supplier B unit cost</label>
+              <div class="inputwrap haspre"><span class="pre" id="curA2">$</span><input type="number" id="unit2" step="0.01" min="0" value="3.40"></div>
+            </div>
+            <div class="f">
+              <label for="freight2">Supplier B freight</label>
+              <div class="inputwrap haspre"><span class="pre" id="curB2">$</span><input type="number" id="freight2" step="0.01" min="0" value="2.40"></div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="f">
+              <label for="costcur">Costs are quoted in</label>
+              <select id="costcur">
+                <option value="1" selected>USD</option>
+                <option value="0.1385">CNY (¥)</option>
+                <option value="1.08">EUR (€)</option>
+                <option value="1.27">GBP (£)</option>
+              </select>
+              <span class="hint">Converted to USD internally</span>
+            </div>
+            <div class="f">
+              <label for="costfx">Rate to USD</label>
+              <input type="number" id="costfx" step="0.0001" min="0.0001" value="1">
+              <span class="hint">Edit if your rate differs</span>
+            </div>
+          </div>
+
+          <div class="fs-title">Selling</div>
+          <div class="row">
+            <div class="f">
+              <label for="retail">Retail price</label>
+              <div class="inputwrap haspre"><span class="pre">$</span><input type="number" id="retail" step="0.01" min="0" value="21.99"></div>
+            </div>
+            <div class="f">
+              <label for="shiprev">Shipping charged</label>
+              <div class="inputwrap haspre"><span class="pre">$</span><input type="number" id="shiprev" step="0.01" min="0" value="0"></div>
+              <span class="hint">0 if you ship free</span>
+            </div>
+          </div>
+          <div class="row">
+            <div class="f">
+              <label for="feepct">Payment fee</label>
+              <div class="inputwrap haspost"><input type="number" id="feepct" step="0.1" min="0" value="3.9"><span class="post">%</span></div>
+            </div>
+            <div class="f">
+              <label for="feefix">Fixed fee per order</label>
+              <div class="inputwrap haspre"><span class="pre">$</span><input type="number" id="feefix" step="0.01" min="0" value="0.30"></div>
+            </div>
+          </div>
+
+          <div class="fs-title">Acquisition &amp; risk</div>
+          <div class="row">
+            <div class="f">
+              <label for="cpa">Target ad cost per sale</label>
+              <div class="inputwrap haspre"><span class="pre">$</span><input type="number" id="cpa" step="0.5" min="0" value="9"></div>
+            </div>
+            <div class="f">
+              <label for="refund">Refund / chargeback rate</label>
+              <div class="inputwrap haspost"><input type="number" id="refund" step="0.5" min="0" max="100" value="4"><span class="post">%</span></div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="f">
+              <label for="rule">Pricing rule multiplier</label>
+              <input type="number" id="rule" step="0.05" min="1" value="1.4">
+              <span class="hint">price = (landed + ad cost) × this</span>
+            </div>
+            <div class="f">
+              <label for="target">Monthly profit target</label>
+              <div class="inputwrap haspre"><span class="pre">$</span><input type="number" id="target" step="100" min="0" value="2000"></div>
+            </div>
+          </div>
+
+          <div class="btnrow">
+            <button class="btn primary" id="save" type="button">Save to portfolio</button>
+            <button class="btn ghost" id="reset" type="button">Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ RESULTS ============ -->
+    <div style="display:flex;flex-direction:column;gap:20px;min-width:0">
+      <div class="panel">
+        <div class="verdict" id="verdict">
+          <div class="vtop"><span class="vlabel" id="vlabel">—</span></div>
+          <p class="vwhy" id="vwhy"></p>
+        </div>
+        <div class="stats" id="stats"></div>
+        <div class="waterfall">
+          <span class="wf-title">Where each dollar of revenue goes</span>
+          <div class="bar" id="bar"></div>
+          <div class="legend">
+            <span><i style="background:var(--line-strong)"></i>Product + freight</span>
+            <span><i style="background:var(--tight)"></i>Payment fees</span>
+            <span><i style="background:var(--muted)"></i>Ad spend</span>
+            <span id="lgProfit"><i style="background:var(--accent)"></i>Profit</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="cmpPanel" hidden>
+        <div class="panel-head"><h2>Supplier comparison</h2></div>
+        <div class="scroller">
+          <table>
+            <thead><tr><th>Supplier</th><th>Landed</th><th>Net / order</th><th>Break-even ROAS</th><th>Verdict</th></tr></thead>
+            <tbody id="cmpBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PORTFOLIO ============ -->
+  <div class="panel">
+    <div class="panel-head">
+      <h2>Portfolio</h2>
+      <button class="btn ghost" id="clearAll" type="button">Clear all</button>
+    </div>
+    <div id="portWrap"></div>
+  </div>
+
+  <footer>
+    Landed runs entirely in your browser. Your numbers are saved to this device only and are never uploaded.<br>
+    Break-even ROAS = revenue ÷ (revenue − landed − fees). Expected profit is refund-adjusted: (1 − refund rate) × revenue − landed − fees − ad cost.
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var $ = function(id){ return document.getElementById(id); };
+  var KEY = "landed.portfolio.v1";
+  var THEME_KEY = "landed.theme";
+
+  var IDS = ["pname","unit","freight","unit2","freight2","costcur","costfx","retail","shiprev",
+             "feepct","feefix","cpa","refund","rule","target"];
+  var DEFAULTS = {pname:"Undercoat deshedding rake",unit:2.80,freight:2.20,unit2:3.40,freight2:2.40,
+                  costcur:"1",costfx:1,retail:21.99,shiprev:0,feepct:3.9,feefix:0.30,cpa:9,refund:4,rule:1.4,target:2000};
+
+  function n(id){ var v = parseFloat($(id).value); return isNaN(v) ? 0 : v; }
+  function money(v){
+    var s = (Math.abs(v) < 100 ? Math.abs(v).toFixed(2) : Math.round(Math.abs(v)).toLocaleString("en-US"));
+    return (v < 0 ? "−$" : "$") + s;
+  }
+
+  /* ---------- core model ---------- */
+  function model(unitCost, freightCost){
+    var fx      = n("costfx") || 1;
+    var landed  = (unitCost + freightCost) * fx;
+    var revenue = n("retail") + n("shiprev");
+    var fees    = revenue * (n("feepct")/100) + n("feefix");
+    var cpa     = n("cpa");
+    var r       = Math.min(Math.max(n("refund"),0),100) / 100;
+    var rule    = n("rule") || 1.4;
+
+    var netGood     = revenue - landed - fees - cpa;
+    // (1-r)*revenue - landed - fees - cpa  — costs are sunk on refunded orders too
+    var expectedNet = (1 - r) * revenue - landed - fees - cpa;
+    var maxCPA      = revenue - landed - fees;
+    var contribution= revenue - landed - fees;
+    var beROAS      = contribution > 0 ? revenue / contribution : Infinity;
+    var suggested   = (landed + cpa) * rule;
+    var markup      = landed > 0 ? revenue / landed : Infinity;
+    var marginPct   = revenue > 0 ? (revenue - landed) / revenue * 100 : 0;
+    var monthlyTgt  = n("target");
+    var ordersNeeded= expectedNet > 0 ? Math.ceil(monthlyTgt / expectedNet) : Infinity;
+
+    var state, why;
+    if (expectedNet <= 0) {
+      state = "fail";
+      why = "At a <b>" + n("refund") + "% refund rate</b> this loses " + money(Math.abs(expectedNet)) +
+            " on every order. You would need ad cost under <b>" + money(maxCPA) +
+            "</b> and even then refunds eat the rest. Re-source it or raise the price.";
+    } else if (revenue < suggested) {
+      state = "tight";
+      why = "Profitable at " + money(expectedNet) + " per order, but your pricing rule wants <b>" +
+            money(suggested) + "</b> and you are charging " + money(revenue) +
+            ". There is no room for ad costs to drift. Raise the price or find cheaper supply.";
+    } else {
+      state = "pass";
+      why = "Clears your pricing rule with room to spare. You keep <b>" + money(expectedNet) +
+            "</b> per order after refunds, and ad cost can rise to " + money(maxCPA) + " before you lose money.";
+    }
+
+    return {landed:landed, revenue:revenue, fees:fees, cpa:cpa, netGood:netGood, expectedNet:expectedNet,
+            maxCPA:maxCPA, beROAS:beROAS, suggested:suggested, markup:markup, marginPct:marginPct,
+            ordersNeeded:ordersNeeded, state:state, why:why};
+  }
+
+  /* ---------- render ---------- */
+  function render(){
+    var m = model(n("unit"), n("freight"));
+
+    $("verdict").className = "verdict " + m.state;
+    $("vlabel").textContent = m.state === "pass" ? "Worth selling" : m.state === "tight" ? "Too tight" : "Loses money";
+    $("vwhy").innerHTML = m.why;
+
+    var roas = isFinite(m.beROAS) ? m.beROAS.toFixed(2) + "×" : "—";
+    var orders = isFinite(m.ordersNeeded) ? m.ordersNeeded.toLocaleString("en-US") : "—";
+
+    $("stats").innerHTML = [
+      stat("Expected profit / order", money(m.expectedNet), "after refunds", m.expectedNet > 0 ? "pos" : "neg"),
+      stat("Landed cost", money(m.landed), "product + freight", ""),
+      stat("Break-even ROAS", roas, "below this you lose", ""),
+      stat("Max ad cost / sale", money(m.maxCPA), "hard ceiling", ""),
+      stat("Gross margin", m.marginPct.toFixed(1) + "%", m.markup.toFixed(1) + "× markup", ""),
+      stat("Suggested price", money(m.suggested), "from your rule", ""),
+      stat("Orders / month to hit " + money(n("target")), orders, "at this profit per order", "")
+    ].join("");
+
+    /* waterfall */
+    var rev = m.revenue || 1;
+    var pc = function(v){ return Math.max(0, v / rev * 100); };
+    var profitPct = pc(Math.max(m.expectedNet, 0));
+    var lossSeg = m.expectedNet < 0
+      ? '<div class="seg loss" style="width:' + Math.min(pc(Math.abs(m.expectedNet)), 100) + '%"></div>' : "";
+    $("bar").innerHTML =
+      '<div class="seg cost" style="width:' + pc(m.landed) + '%"></div>' +
+      '<div class="seg fee" style="width:' + pc(m.fees) + '%"></div>' +
+      '<div class="seg ad" style="width:' + pc(m.cpa) + '%"></div>' +
+      '<div class="seg profit" style="width:' + profitPct + '%"></div>' + lossSeg;
+    $("lgProfit").innerHTML = m.expectedNet < 0
+      ? '<i style="background:var(--fail)"></i>Loss'
+      : '<i style="background:var(--accent)"></i>Profit';
+
+    /* comparison */
+    if ($("cmpOn").checked) {
+      var a = m, b = model(n("unit2"), n("freight2"));
+      $("cmpBody").innerHTML = [row("Supplier A", a), row("Supplier B", b)].join("");
+    }
+  }
+
+  function stat(k, v, s, cls){
+    return '<div class="stat"><span class="k">' + k + '</span><span class="v ' + cls + '">' + v +
+           '</span><span class="s">' + s + '</span></div>';
+  }
+  function row(name, m){
+    var roas = isFinite(m.beROAS) ? m.beROAS.toFixed(2) + "×" : "—";
+    return "<tr><td>" + name + '</td><td class="num">' + money(m.landed) +
+           '</td><td class="num">' + money(m.expectedNet) + '</td><td class="num">' + roas +
+           '</td><td><span class="pill ' + m.state + '">' + m.state + "</span></td></tr>";
+  }
+
+  /* ---------- portfolio ---------- */
+  function load(){ try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch(e){ return []; } }
+  function persist(list){ try { localStorage.setItem(KEY, JSON.stringify(list)); } catch(e){} }
+
+  function drawPortfolio(){
+    var list = load(), wrap = $("portWrap");
+    if (!list.length) {
+      wrap.innerHTML = '<div class="empty">No products saved yet.<br>Fill in the numbers and hit <code>Save to portfolio</code> to build a shortlist you can compare.</div>';
+      return;
+    }
+    var rows = list.map(function(it, i){
+      var roas = isFinite(it.beROAS) ? it.beROAS.toFixed(2) + "×" : "—";
+      return "<tr><td>" + escapeHtml(it.name) + '</td><td class="num">' + money(it.landed) +
+        '</td><td class="num">' + money(it.retail) + '</td><td class="num">' + money(it.expectedNet) +
+        '</td><td class="num">' + roas + '</td><td><span class="pill ' + it.state + '">' + it.state +
+        '</span></td><td style="text-align:right;white-space:nowrap">' +
+        '<button class="linkbtn load" data-load="' + i + '">load</button>' +
+        '<button class="linkbtn" data-del="' + i + '">remove</button></td></tr>';
+    }).join("");
+    wrap.innerHTML = '<div class="scroller"><table><thead><tr><th>Product</th><th>Landed</th>' +
+      "<th>Price</th><th>Profit / order</th><th>B/E ROAS</th><th>Verdict</th><th></th></tr></thead><tbody>" +
+      rows + "</tbody></table></div>";
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+
+  function snapshot(){
+    var m = model(n("unit"), n("freight")), o = {};
+    IDS.forEach(function(id){ o[id] = $(id).value; });
+    return {name: $("pname").value || "Untitled", landed:m.landed, retail:m.revenue,
+            expectedNet:m.expectedNet, beROAS:m.beROAS, state:m.state, inputs:o};
+  }
+
+  /* ---------- events ---------- */
+  IDS.forEach(function(id){
+    var el = $(id);
+    el.addEventListener("input", render);
+    el.addEventListener("change", render);
+  });
+
+  $("costcur").addEventListener("change", function(){
+    $("costfx").value = this.value;
+    var sym = this.options[this.selectedIndex].text.match(/[^\w\s()]/);
+    sym = sym ? sym[0] : "$";
+    ["curA","curB","curA2","curB2"].forEach(function(k){ $(k).textContent = sym; });
+    render();
+  });
+
+  $("cmpOn").addEventListener("change", function(){
+    $("cmpRow").hidden = !this.checked;
+    $("cmpPanel").hidden = !this.checked;
+    render();
+  });
+
+  $("save").addEventListener("click", function(){
+    var list = load();
+    list.unshift(snapshot());
+    persist(list.slice(0, 50));
+    drawPortfolio();
+  });
+
+  $("reset").addEventListener("click", function(){
+    Object.keys(DEFAULTS).forEach(function(k){ $(k).value = DEFAULTS[k]; });
+    ["curA","curB","curA2","curB2"].forEach(function(k){ $(k).textContent = "$"; });
+    render();
+  });
+
+  $("clearAll").addEventListener("click", function(){
+    if (load().length && confirm("Remove every saved product?")) { persist([]); drawPortfolio(); }
+  });
+
+  $("portWrap").addEventListener("click", function(e){
+    var del = e.target.getAttribute && e.target.getAttribute("data-del");
+    var ld  = e.target.getAttribute && e.target.getAttribute("data-load");
+    if (del !== null && del !== undefined) {
+      var l = load(); l.splice(+del, 1); persist(l); drawPortfolio();
+    } else if (ld !== null && ld !== undefined) {
+      var item = load()[+ld];
+      if (item && item.inputs) {
+        IDS.forEach(function(id){ if (item.inputs[id] !== undefined) $(id).value = item.inputs[id]; });
+        render();
+        window.scrollTo({top:0, behavior:"smooth"});
+      }
+    }
+  });
+
+  /* theme */
+  var themes = ["", "light", "dark"];
+  function applyTheme(t){
+    if (t) document.documentElement.setAttribute("data-theme", t);
+    else document.documentElement.removeAttribute("data-theme");
+  }
+  try { applyTheme(localStorage.getItem(THEME_KEY) || ""); } catch(e){}
+  $("themebtn").addEventListener("click", function(){
+    var cur = document.documentElement.getAttribute("data-theme") || "";
+    var next = themes[(themes.indexOf(cur) + 1) % themes.length];
+    applyTheme(next);
+    try { localStorage.setItem(THEME_KEY, next); } catch(e){}
+  });
+
+  render();
+  drawPortfolio();
+})();
+</script>
+</body>
+</html>

@@ -1,13 +1,23 @@
-# Node.js
+# dependencies
 node_modules/
 
-# Next.js
-.next/
-/.next/
-
-# Environment files
+# env — never commit secrets
 .env
-.env.local
-.env.development
-.env.test
-.env.production
+.env.*
+!.env.example
+
+# build output
+dist/
+build/
+.next/
+out/
+
+# logs
+*.log
+npm-debug.log*
+
+# os / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,46 +1,66 @@
-# Project Overview
-This project is designed to automate and manage arbitrage opportunities across various platforms. It provides tools and methods for users to identify and capitalize on price discrepancies between different exchanges.
+# Landed
 
-# Setup Instructions
-1. **Clone the Repository**  
-   Run the following command to clone the repository:
-   ```bash
-   git clone https://github.com/feiyahactionnetwork/arbitrage.whop.git
-   ```  
-2. **Install Dependencies**  
-   Navigate to the project directory and install dependencies:
-   ```bash
-   cd arbitrage.whop
-   npm install
-   ```  
-3. **Configuration**  
-   Copy the `.env.example` file to `.env` and configure your settings:
-   ```bash
-   cp .env.example .env
-   ``` 
-4. **Running the Application**  
-   Start the application using:
-   ```bash
-   npm start
-   ```
+A dropshipping product viability calculator. Tells you whether a product makes money
+**before** you buy stock or spend anything on ads.
 
-# API Documentation
-## Endpoints
-- **GET /api/arbitrage**  
-  Retrieve current arbitrage opportunities.
-  - **Response:** List of arbitrage opportunities.
+Built to be sold as a paid tool on Whop.
 
-- **POST /api/arbitrage**  
-  Create a new arbitrage opportunity.
-  - **Request Body:** Arbitrage details.
-  - **Response:** Created arbitrage opportunity details.
+## What it answers
 
-## Authentication  
-API requests must include a valid API key in the headers. 
+- **Expected profit per order**, adjusted for your real refund rate — not the optimistic number
+- **Break-even ROAS**, the figure you actually need when buying traffic
+- **Maximum ad cost per sale** before the product stops making money
+- **Suggested price** from a configurable pricing rule
+- **Orders per month** required to hit a profit target
+- A plain verdict: *worth selling*, *too tight*, or *loses money*
 
-Example:
-```http
-Authorization: Bearer YOUR_API_KEY
+Plus supplier A/B comparison and a saved portfolio for shortlisting products.
+
+## The model
+
+All figures are computed in USD. Costs quoted in CNY/EUR/GBP convert at an editable rate.
+
+```
+landed        = (unit cost + freight) × fx
+revenue       = retail + shipping charged
+fees          = revenue × fee% + fixed fee
+max ad cost   = revenue − landed − fees
+break-even ROAS = revenue ÷ (revenue − landed − fees)
+suggested price = (landed + ad cost) × rule multiplier
 ```
 
-For more details, please refer to the [API Documentation Guide](#).
+Expected profit is refund-adjusted. On a refunded order the goods, fees and ad spend are
+all still gone, so those costs apply to every order while only the kept orders bring revenue:
+
+```
+expected profit = (1 − refund rate) × revenue − landed − fees − ad cost
+```
+
+**Verdict logic**
+
+| Verdict | Condition |
+|---|---|
+| Loses money | expected profit ≤ 0 |
+| Too tight | profitable, but price is below the pricing rule's suggested price |
+| Worth selling | profitable and at or above the suggested price |
+
+## Running it
+
+No build step and no dependencies — it is a single self-contained `index.html`.
+
+```bash
+npm run dev     # serves on http://localhost:5173
+```
+
+Or just open `index.html` in a browser.
+
+## Architecture
+
+Deliberately a single static file: no build pipeline, no npm supply chain, no backend.
+It deploys anywhere, loads instantly, and keeps working untouched. All state lives in
+`localStorage`, so a buyer's product costs never leave their machine — which is also the
+honest answer to "do you store my supplier pricing?"
+
+## Licence
+
+See `LICENSE`.
